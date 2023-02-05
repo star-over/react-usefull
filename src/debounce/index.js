@@ -27,7 +27,7 @@ function Debounce({ delay = 500, initialText = "" }) {
         <input
           className="rounded h-8 pl-2 border-2 border-zinc-400/50"
           placeholder="type some text"
-          type="text"
+          type="search"
           id="input-text"
           onChange={(e) => setInputText(e.target.value)}
           value={inputText}
