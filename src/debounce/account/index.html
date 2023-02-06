@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta
+      http-equiv="X-UA-Compatible"
+      content="IE=edge"
+    >
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    >
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      const INITIAL_STATE = {
+        operations: [],
+        total: { income: 0, expense: 0, balance: 0 },
+      };
+      const STATE_NAME = "accountStore";
+
+      const saveState = (store) => localStorage[STATE_NAME] = JSON.stringify(store);
+
+      const loadState = () => localStorage[STATE_NAME]
+        ? JSON.parse(localStorage.accountStore)
+        : INITIAL_STATE;
+
+      const totalIncome = () => loadState().total.income;
+      const totalExpense = () => loadState().total.expense;
+      const accountBalance = () => loadState().total.balance;
+      const accountInfo = () => loadState().total;
+      const operations = () => loadState().operations;
+
+      const render = (elements) => {
+        const renderRow = ({ name, family, income, expense }) => {
+          const tableRow = document.createElement('tr');
+          tableRow.innerHTML = `<td>${name}</td><td>${family}</td><td>${income || "-"}</td><td>${expense || "-"}</td>`;
+          return tableRow;
+        };
+
+        elements.infoIncome.innerText = totalIncome();
+        elements.infoExpense.innerText = totalExpense();
+        elements.infoBalance.innerText = accountBalance();
+        elements.infoOperationsCount.innerText = operations().length;
+        const tableRows = operations().reverse().map((operation) => renderRow(operation));
+        elements.tableBody.replaceChildren(...tableRows);
+        elements.income.value = "";
+        elements.expense.value = "";
+      };
+
+      const addOperation = (operation) => {
+        const store = loadState();
+        store.operations.push(operation);
+        store.total.income += operation.income;
+        store.total.expense += operation.expense;
+        store.total.balance += operation.income - operation.expense;
+        saveState(store);
+      };
+
+      const validadate = (operation, elements) => {
+        const { name, family, income, expense } = operation;
+        const { namesMessage, namesFieldset, operationsMessage, operationsFieldset } = elements;
+        const errorClasses = ["bg-gradient-to-br", "from-transparent", "to-rose-200", "border-4", "border-solid", "border-rose-200"];
+        let validateFlag = true;
+
+        if (name === "" && family === "") {
+          namesMessage.innerText = "Заполните одно из полей 'Имя' или 'Фамилия'";
+          namesFieldset.classList.add(...errorClasses);
+          validateFlag = false;
+        } else {
+          namesMessage.innerText = "";
+          namesFieldset.classList.remove(...errorClasses);
+        }
+
+        if (income === 0 && expense === 0) {
+          operationsMessage.innerText = "Заполните одно из полей 'Доходы' или 'Расходы'";
+          operationsFieldset.classList.add(...errorClasses);
+          validateFlag = false;
+        } else {
+          operationsMessage.innerText = "";
+          operationsFieldset.classList.remove(...errorClasses);
+        }
+
+        return validateFlag;
+      };
+
+      const handleSubmit = (event, elements) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const operation = Object.fromEntries(formData.entries())
+        operation.income = Number(operation.income);
+        operation.expense = Number(operation.expense);
+        if (validadate(operation, elements)) {
+          addOperation(operation);
+          render(elements);
+        }
+      };
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const elements = {
+          form: document.querySelector("#account-form"),
+          name: document.querySelector("#name"),
+          family: document.querySelector("#family"),
+          income: document.querySelector("#income"),
+          expense: document.querySelector("#expense"),
+          tableBody: document.querySelector("#table-body"),
+          infoIncome: document.querySelector("#info-income"),
+          infoExpense: document.querySelector("#info-expense"),
+          infoBalance: document.querySelector("#info-balance"),
+          infoOperationsCount: document.querySelector("#info-operations-count"),
+          namesMessage: document.querySelector("#names-message"),
+          operationsMessage: document.querySelector("#operations-message"),
+          namesFieldset: document.querySelector("#names-fieldset"),
+          operationsFieldset: document.querySelector("#operations-fieldset"),
+        };
+
+        render(elements);
+
+        elements.form.addEventListener('submit', (event) => handleSubmit(event, elements));
+      });
+    </script>
+    <title>Account</title>
+  </head>
+
+  <!-- HTML -->
+
+  <body class="flex min-h-screen justify-center items-start transition-all duration-1000">
+    <main
+      class="container sm:shadow-2xl sm:my-10 py-6 px-6 md:px-10 xl:px-20 sm:mt-8 xl:max-w-4xl bg-slate-100 border-slate-200 sm:border sm:border-2 sm:rounded-2xl bg-gradient-to-b from-blue-50 via-violet-50 to-fuchsia-50"
+    >
+    <h1 class="text-3xl md:text-6xl sm:mb-8 text-center font-black cursor-default font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-lime-500 to-sky-600">
+      Account
+    </h1>
+      <form id="account-form">
+        <fieldset
+          class="border border-solid border-slate-300 rounded-2xl px-2 pb-2 pt-6 mb-6"
+          id="names-fieldset"
+        >
+          <legend class="text-sm ml-2 text-slate-500 cursor-default">Персональные данные</legend>
+          <div class="flex flex-col sm:flex-row gap-8 sm:gap-2 lg:gap-6">
+
+            <!-- name -->
+            <div class="relative w-full">
+              <input
+                class="w-full peer h-10 rounded-xl border border-slate-300 bg-white py-2 px-4 text-xl text-slate-600 shadow placeholder-transparent hover:border-slate-400/70 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                id="name"
+                type="text"
+                name="name"
+                value="John"
+                minlength="2"
+                placeholder="&nbsp;"
+              />
+              <label
+                class="absolute -top-5 ml-2 block rounded-lg px-2 text-sm text-slate-600 transition-all delay-150 duration-300 peer-placeholder-shown:top-1.5 peer-placeholder-shown:bg-transparent peer-placeholder-shown:pl-2 peer-placeholder-shown:text-xl peer-placeholder-shown:text-slate-400 peer-focus:-top-5 peer-focus:px-2 peer-focus:text-sm peer-focus:text-slate-600"
+                for="name"
+              >Имя</label>
+            </div>
+
+            <!-- family -->
+            <div class="relative w-full">
+              <input
+                class="w-full peer h-10 rounded-xl border border-slate-300 bg-white py-2 px-4 text-xl text-slate-600 shadow placeholder-transparent hover:border-slate-400/70 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                id="family"
+                type="text"
+                minlength="2"
+                defaultValue="0"
+                value="Snow"
+                name="family"
+                placeholder="&nbsp;"
+              />
+              <label
+                class="absolute -top-5 ml-2 block rounded-lg px-2 text-sm text-slate-600 transition-all delay-150 duration-300 peer-placeholder-shown:top-1.5 peer-placeholder-shown:bg-transparent peer-placeholder-shown:pl-2 peer-placeholder-shown:text-xl peer-placeholder-shown:text-slate-400 peer-focus:-top-5 peer-focus:px-2 peer-focus:text-sm peer-focus:text-slate-600"
+                for="family"
+              >Фамилия</label>
+            </div>
+          </div>
+          <p
+            class="mx-2 mt-1 text-xs text-pink-700"
+            id="names-message"
+          ></p>
+        </fieldset>
+
+        <fieldset
+          class="border border-solid border-slate-300 rounded-2xl px-2 pb-2 pt-6 mb-6"
+          id="operations-fieldset"
+        >
+          <legend class="text-sm ml-2 text-slate-500 cursor-default">Операция</legend>
+          <div class="flex flex-col sm:flex-row gap-8 sm:gap-2 lg:gap-6">
+
+            <!-- income -->
+            <div class="relative w-full">
+              <input
+                class="w-full peer h-10 rounded-xl border border-slate-300 bg-white py-2 px-4 text-xl text-slate-600 shadow placeholder-transparent hover:border-slate-400/70 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                id="income"
+                name="income"
+                type="number"
+                defaultValue="0"
+                min="0"
+                max="99999"
+                placeholder="&nbsp;"
+              />
+              <label
+                class="absolute -top-5 ml-2 block rounded-lg px-2 text-sm text-slate-600 transition-all delay-150 duration-300 peer-placeholder-shown:top-1.5 peer-placeholder-shown:bg-transparent peer-placeholder-shown:pl-2 peer-placeholder-shown:text-xl peer-placeholder-shown:text-slate-400 peer-focus:-top-5 peer-focus:px-2 peer-focus:text-sm peer-focus:text-slate-600"
+                for="income"
+              >Доход</label>
+            </div>
+
+            <!-- expense -->
+            <div class="relative w-full">
+              <input
+                class="w-full peer h-10 rounded-xl border border-slate-300 bg-white py-2 px-4 text-xl text-slate-600 shadow placeholder-transparent hover:border-slate-400/70 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                id="expense"
+                name="expense"
+                type="number"
+                min="0"
+                max="99999"
+                placeholder="&nbsp;"
+              />
+              <label
+                class="absolute -top-5 ml-2 block rounded-lg px-2 text-sm text-slate-600 transition-all delay-150 duration-300 peer-placeholder-shown:top-1.5 peer-placeholder-shown:bg-transparent peer-placeholder-shown:pl-2 peer-placeholder-shown:text-xl peer-placeholder-shown:text-slate-400 peer-focus:-top-5 peer-focus:px-2 peer-focus:text-sm peer-focus:text-slate-600"
+                for="expense"
+              >Расход</label>
+            </div>
+          </div>
+          <p
+            class="mx-2 mt-1 text-xs text-pink-700"
+            id="operations-message"
+          >
+            </h1>
+        </fieldset>
+        <!-- button -->
+        <button
+          class="rounded-xl text-2xl font-semibold leading-10 py-2 w-full bg-gradient-to-r from-lime-500/80 to-sky-500/80 hover:from-lime-500 hover:to-sky-500 text-white cursor-auto shadow-md transition-all duration-1000"
+          type="submit"
+        >
+          Добавить
+        </button>
+      </form>
+
+      <!-- divider -->
+      <div class="mt-4 h-[2px] rounded-full bg-gradient-to-l from-lime-300 to-sky-300"></div>
+
+      <!-- account info -->
+      <section id="account-info">
+        <h3 class="mt-3 text-lg text-slate-600 cursor-default	">Сводная информация</h3>
+        <div class="flex gap-4 [&>*]:text-slate-600 cursor-default">
+          <p>Баланс: <strong id="info-balance" class="font-mono text-lg">100</strong></p>
+          <p>Доходы: <strong id="info-income" class="font-mono text-lg">100</strong></p>
+          <p>Расходы: <strong id="info-expense" class="font-mono text-lg">100</strong></p>
+          <p>Операций: <strong id="info-operations-count" class="font-mono text-lg">10</strong></p>
+        </div>
+
+        <h3 class="mt-4 text-lg text-slate-600 cursor-default	">Детализация</h3>
+        <div
+          class="mt-2 mb-8"
+          id="account-operations"
+        >
+          <table
+            class="table-fixed rounded-xl px-2 pb-2 pt-0 bg-white shadow-lg w-full"
+            id="operations-table"
+          >
+            <thead class="h-8 [&>tr>th]:px-4 bg-slate-300 text-slate-700 text-right text-sm ">
+              <tr class="">
+                <th class="rounded-l-lg">Имя</th>
+                <th>Фамилия</th>
+                <th>Доход</th>
+                <th class="rounded-r-lg">Расход</th>
+              </tr>
+            </thead>
+            <tbody
+              class="text-xs text-right odd:[&>tr]:bg-slate-50 [&>tr>td]:text-slate-600 [&>tr>td]:px-4 [&>tr:hover]:bg-stone-100 first:[&>tr>td]:rounded-l-lg last:[&>tr>td]:rounded-r-lg"
+              id="table-body"
+            >
+              <tr>
+                <td>John</td>
+                <td>Snow</td>
+                <td>100</td>
+                <td>0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </body>
+
+</html>
