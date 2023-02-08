@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    const renderSizeInfo = () => {
+      document.querySelector("#width").innerHTML = window.innerWidth
+      document.querySelector("#height").innerHTML = window.innerHeight
+    }
+
+    window.addEventListener("load", renderSizeInfo)
+    window.addEventListener("resize", renderSizeInfo)
+  </script>
+  <title>Размеры окна</title>
+</head>
+<body>
+    <div class="container mx-auto p-4 m-4 bg-zinc-100 border-zinc-200 border border-2  rounded-2xl">
+      <h1 class="text-2xl font-bold text-zinc-500">Размеры окна</h1>
+      <h2 class="text-xl mt-4 font-bold text-zinc-500">Задание</h2>
+      <p class="text-sm text-zinc-500">Напишите программу на JavaScript для удаления элементов из раскрывающегося списка</p>
+      <p class="text-xs mt-4 text-zinc-500">Измените размеры окна чтобы запустить событие <code class="font-momo">resize</code></p>
+    </div>
+    <div class="container mx-auto p-4 m-4 bg-zinc-100 border-zinc-200 border border-2  rounded-2xl">
+      <h2 class="mx-8 text-lg text-center font-bold text-zinc-500">Размеры:</h2>
+      <p class="mx-8 mt-2 text-sm text-center"><strong id="width">100</strong><span class="text-sm"> px</span> x <strong id="height">100</strong><span class="text-sm"> px</span></p>
+      <h2 class="mx-8 mt-4 text-lg text-center text-zinc-500">Название размера:</h2>
+      <p class="mx-8 text-2xl text-center">
+        <strong class="text-zinc-600 sm:hidden">sm</strong>
+        <strong class="text-zinc-600 max-sm:hidden lg:hidden">md</strong>
+        <strong class="text-zinc-600 max-lg:hidden xl:hidden">lg</strong>
+        <strong class="text-zinc-600 max-xl:hidden 2xl:hidden">xl</strong>
+        <strong class="text-zinc-600 max-2xl:hidden">2xl</strong>
+      </p>
+
+    </div>
+</body>
+</html>
